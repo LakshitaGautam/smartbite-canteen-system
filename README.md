@@ -31,28 +31,4 @@ Key Features
 - Stored Procedures: Place order, generate bill, update inventory
 - Triggers: Auto-update stock on order placement
 
- How to Run
-
-1. Clone the repository
-   git clone https://github.com/LakshitaGautam/smartbite-canteen-system.git
-
-2. Set up the database
-   - Open MySQL Workbench
-   - Run the schema.sql file to create tables and procedures
-
-3. Install dependencies
-   pip install flask mysql-connector-python
-
-4. Run the app
-   python app.py
-
-5. Open in browser
-   http://localhost:5000
-
----
-
-## 👩‍💻 Developer
-
-Lakshita Gautam
-Jaypee Institute of Information Technology, Noida
-B.Tech CSE | 2023–2028
+ 
