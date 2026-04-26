@@ -1,0 +1,464 @@
+HTML FILES 
+
+1)base.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBite Canteen</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Aesthetic Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: #ffeef6;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #ff7eb3, #ff65a3);
+            padding: 15px;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+
+        .card {
+            border-radius: 20px;
+            background: #ffffff;
+            border: none;
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.18);
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #ff7eb3, #ff65a3);
+            border: none;
+            padding: 12px 22px;
+            border-radius: 30px;
+            color: white;
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+        .btn-main:hover {
+            transform: scale(1.03);
+            background: linear-gradient(135deg, #ff65a3, #ff7eb3);
+        }
+
+        h1, h2, h3, h4 {
+            color: #ff4f9a;
+            font-weight: 700;
+        }
+
+        .table thead {
+            background: #ffb6d9;
+        }
+        .table th {
+            color: white;
+            font-weight: 600;
+        }
+        .table td {
+            background: #fff7fc;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a class="navbar-brand" href="/">SmartBite</a>
+    </div>
+</nav>
+
+<div class="container my-5">
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>
+
+2)index.html
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="text-center">
+    <h1 class="mb-4">Welcome to SmartBite 💗</h1>
+    <p class="lead mb-5">Smart canteen ordering system! ✨</p>
+
+    <a href="/menu" class="btn-main mx-2">Order Food</a>
+    <a href="/admin" class="btn-main mx-2" style="background:#ff8cba;">Admin Panel</a>
+    <a href="/reports" class="btn-main mx-2" style="background:#ff9fcf;">Reports</a>
+</div>
+
+{% endblock %}
+
+
+
+3)menu.html
+
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-center mb-4">Our Menu 🍰</h2>
+
+<!-- 🌸 SEASONAL SPECIAL BLOCK -->
+{% if seasonal %}
+<div class="card p-4 mb-4" style="background:#fff0f9; border-left: 6px solid #ff64b0;">
+
+    <!-- BANGER FESTIVAL BANNER -->
+    <div style="
+        background: linear-gradient(135deg, #ff64b0, #ff87c8);
+        padding: 18px;
+        border-radius: 15px;
+        text-align: center;
+        color: white;
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 15px rgba(255, 105, 180, 0.25);
+    ">
+        🎉 Seasonal Specials – {{ seasonal[0].festival_name }} Edition 🎉
+    </div>
+
+    <h3 class="mb-3" style="color:#ff3f96; font-weight:600;">🌸 Festival Special Items 🌸</h3>
+
+    <form method="POST" action="/place_order" id="orderForm">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Qty</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in seasonal %}
+            <tr>
+                <td><b>{{s.item_name}}</b></td>
+                <td>₹{{s.price}}</td>
+                <td>{{s.stock}}</td>
+                <td>
+                    <input type="number" name="item_{{s.item_id}}" class="form-control"
+                        min="0" max="{{s.stock}}" value="0">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </form>
+
+</div>
+{% endif %}
+
+
+<!-- NORMAL MENU ITEMS -->
+<div class="card p-4">
+    <h4 class="mb-3">Available Items</h4>
+
+    <form method="POST" action="/place_order" id="orderForm">
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Qty</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for i in items %}
+                <tr>
+                    <td>{{i.item_name}}</td>
+                    <td>₹{{i.price}}</td>
+                    <td>{{i.stock}}</td>
+                    <td>
+                        <input type="number" name="item_{{i.item_id}}" 
+                               class="form-control" min="0" max="{{i.stock}}" value="0">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button class="btn-main w-100 mt-3">Place Order 💖</button>
+    </form>
+</div>
+
+{% endblock %}
+
+4)order_succsess.html
+
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card p-5 text-center">
+    <h2 class="text-success fw-bold">Order Successful! 🎀</h2>
+    <p class="fs-4 mt-3">Your Token: <strong>#{{token}}</strong></p>
+    <p class="fs-5">Order ID: {{order_id}}</p>
+    <p class="fs-5">Total Amount: ₹{{total}}</p>
+
+    <a href="/menu" class="btn-main mt-4">Order More 💗</a>
+</div>
+
+{% endblock %}
+
+5)admin.html
+
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4 text-center">Admin Panel ⚙️</h2>
+
+<div class="card p-4 mb-4">
+    <h4>Restock Items</h4>
+
+    <form method="POST">
+        <select class="form-select mb-3" name="item_id">
+            {% for i in items %}
+            <option value="{{i.item_id}}">{{i.item_name}} (Stock: {{i.stock}})</option>
+            {% endfor %}
+        </select>
+
+        <input type="number" class="form-control mb-3" name="qty" min="1" value="10">
+
+        <button class="btn-main w-100">Restock</button>
+    </form>
+</div>
+
+<div class="card p-4">
+    <h4>Current Stock</h4>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in items %}
+            <tr>
+                <td>{{i.item_name}}</td>
+                <td>₹{{i.price}}</td>
+                <td>{{i.stock}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+
+6)reports.html
+
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-center mb-4">Reports 📊💗</h2>
+
+<div class="card p-4 mb-4">
+    <h4>Most Popular Items</h4>
+    <table class="table">
+        <tr><th>Item</th><th>Sold</th></tr>
+        {% for r in popular %}
+        <tr><td>{{r.item_name}}</td><td>{{r.total_sold}}</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card p-4 mb-4">
+    <h4>Daily Sales</h4>
+    <table class="table">
+        <tr><th>Date</th><th>Total Sales</th></tr>
+        {% for r in sales %}
+        <tr><td>{{r.day}}</td><td>{{r.total_sales}}</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+<div class="card p-4">
+    <h4>Expired Items</h4>
+    <table class="table">
+        <tr><th>Item</th><th>Expiry Date</th></tr>
+        {% for r in expired %}
+        <tr><td>{{r.item_name}}</td><td>{{r.expiry_date}}</td></tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}
+
+
+7)app.py
+
+from flask import Flask, render_template, request, redirect
+import mysql.connector
+from config import DB_CONFIG, SECRET_KEY
+
+app = Flask(__name__)
+app.secret_key = SECRET_KEY
+
+
+# ---------------- HOME PAGE ----------------
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+# ---------------- MENU PAGE (WITH SEASONAL FEATURE) ----------------
+@app.route("/menu")
+def menu():
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cur = conn.cursor(dictionary=True)
+
+    # Normal menu items
+    cur.execute("SELECT * FROM menu_items WHERE is_seasonal = 'NO'")
+    items = cur.fetchall()
+
+    # Seasonal items (date-based)
+    cur.execute("""
+        SELECT mi.*, si.festival_name
+        FROM menu_items mi
+        JOIN seasonal_items si ON mi.item_id = si.item_id
+        WHERE CURDATE() BETWEEN si.start_date AND si.end_date
+    """)
+    seasonal = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template("menu.html", items=items, seasonal=seasonal)
+
+
+# ---------------- PLACE ORDER ----------------
+@app.route("/place_order", methods=["POST"])
+def place_order():
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cur = conn.cursor(dictionary=True)
+
+    # Create new order
+    cur.execute("INSERT INTO orders(student_id) VALUES (1)")
+    conn.commit()
+
+    order_id = cur.lastrowid
+    token = order_id + 100
+
+    # Insert items
+    for key, value in request.form.items():
+        if key.startswith("item_") and int(value) > 0:
+            item_id = int(key.split("_")[1])
+            qty = int(value)
+            cur.execute("INSERT INTO order_items(order_id, item_id, quantity) VALUES (%s, %s, %s)",
+                        (order_id, item_id, qty))
+
+    conn.commit()
+
+    # Calculate bill
+    cur.execute("""
+        SELECT SUM(mi.price * oi.quantity) AS total
+        FROM order_items oi
+        JOIN menu_items mi ON oi.item_id = mi.item_id
+        WHERE oi.order_id = %s
+    """, (order_id,))
+    total = cur.fetchone()["total"]
+
+    # Update total in orders table
+    cur.execute("UPDATE orders SET total_amount=%s, token_number=%s WHERE order_id=%s",
+                (total, token, order_id))
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return render_template("order_success.html", token=token, order_id=order_id, total=total)
+
+
+# ---------------- ADMIN PANEL ----------------
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cur = conn.cursor(dictionary=True)
+
+    if request.method == "POST":
+        item_id = request.form["item_id"]
+        qty = int(request.form["qty"])
+        cur.execute("UPDATE menu_items SET stock = stock + %s WHERE item_id = %s", (qty, item_id))
+        conn.commit()
+
+    cur.execute("SELECT * FROM menu_items")
+    items = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template("admin.html", items=items)
+
+
+# ---------------- REPORTS PAGE ----------------
+@app.route("/reports")
+def reports():
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cur = conn.cursor(dictionary=True)
+
+    cur.execute("""
+        SELECT mi.item_name, SUM(oi.quantity) AS total_sold
+        FROM order_items oi
+        JOIN menu_items mi ON oi.item_id = mi.item_id
+        GROUP BY oi.item_id
+        ORDER BY total_sold DESC
+    """)
+    popular = cur.fetchall()
+
+    cur.execute("""
+        SELECT DATE(order_time) AS day, SUM(total_amount) AS total_sales
+        FROM orders
+        GROUP BY DATE(order_time)
+        ORDER BY day DESC
+    """)
+    sales = cur.fetchall()
+
+    cur.execute("""
+        SELECT mi.item_name, et.expiry_date
+        FROM expiry_tracker et
+        JOIN menu_items mi ON et.item_id = mi.item_id
+        WHERE et.is_expired = 'YES'
+    """)
+    expired = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template("reports.html", popular=popular, sales=sales, expired=expired)
+
+
+
+8)config.py
+
+# ---------------- RUN APP ----------------
+if __name__ == "__main__":
+    app.run(debug=True)
+# config.py — database credentials for Flask
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'moonmoubisai',
+    'database': 'smartbite'
+}
+SECRET_KEY = 'replace-with-a-random-secret'
+
